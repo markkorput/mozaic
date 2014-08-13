@@ -2,6 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    // UI
     gui = new ofxUISuperCanvas("GRID");
     gui->addSpacer();
     gui->addSlider("GRIDCELLW", 0, 1000, 100.0);
@@ -24,6 +25,9 @@ void ofApp::setup(){
     gui->autoSizeToFitWidgets();
     ofAddListener(gui->newGUIEvent,this,&ofApp::guiEvent);
     gui->loadSettings("guiSettings.xml");
+
+    // IMAGE
+    image = NULL;
 }
 
 //--------------------------------------------------------------
@@ -33,7 +37,24 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    ofBackground(0,0,0);
 
+    // draw image
+    if(image){
+        image->draw(0,0);
+    }
+    
+    // draw grid
+    int x = (int)((ofxUISlider *)gui->getWidget("GRIDOFFSETX"))->getScaledValue();
+    int y = (int)((ofxUISlider *)gui->getWidget("GRIDOFFSETY"))->getScaledValue();
+    int w = (int)((ofxUISlider *)gui->getWidget("GRIDCELLW"))->getScaledValue();
+    int h = (int)((ofxUISlider *)gui->getWidget("GRIDCELLH"))->getScaledValue();
+    if(w < 1) w = 1;
+    if(h < 1) h = 1;
+    ofLogVerbose() << "(Grid: x,y,w,h) - " << x << "," << y << "," << w << "," << h;
+
+    for(x *= -1; x<ofGetWindowWidth(); x+=w) ofLine(x, 0, x, ofGetWindowHeight());
+    for(y *= -1; y<ofGetWindowHeight(); y+=h) ofLine(0, y, ofGetWindowWidth(), y);
 }
 
 //--------------------------------------------------------------
@@ -41,6 +62,7 @@ void ofApp::exit()
 {
     gui->saveSettings("guiSettings.xml");
     delete gui;
+    delete image;
 }
 
 //--------------------------------------------------------------
@@ -85,7 +107,15 @@ void ofApp::gotMessage(ofMessage msg){
 
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
+    // ofLogNotice("dragEvent") << dragInfo.files[0];
+    // unload existing image
+    ofLogVerbose("UNloading existing image");
+    delete image;
 
+    // load image
+    ofLogVerbose("Loading new image");
+    image = new ofImage(dragInfo.files[0]);
+    ofSetWindowShape(image->getWidth(), image->getHeight());
 }
 
 //--------------------------------------------------------------

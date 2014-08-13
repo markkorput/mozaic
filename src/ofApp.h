@@ -25,5 +25,7 @@ class ofApp : public ofBaseApp{
     ofxUISuperCanvas *gui;
 	void guiEvent(ofxUIEventArgs &e);
 
+    // IMG
+    ofImage* image;
 		
 };
