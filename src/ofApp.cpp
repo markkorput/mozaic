@@ -28,6 +28,11 @@ void ofApp::setup(){
 
     // IMAGE
     image = NULL;
+    
+    fbo.allocate(ofGetWindowWidth(), ofGetWindowHeight());
+    fbo.begin();
+        ofBackground(0,0,0);
+    fbo.end();
 }
 
 //--------------------------------------------------------------
@@ -38,11 +43,8 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(0,0,0);
+    fbo.draw(0,0);
 
-    // draw image
-    if(image){
-        image->draw(0,0);
-    }
     
     // draw grid
     int x = (int)((ofxUISlider *)gui->getWidget("GRIDOFFSETX"))->getScaledValue();
@@ -116,11 +118,31 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
     ofLogVerbose("Loading new image");
     image = new ofImage(dragInfo.files[0]);
     ofSetWindowShape(image->getWidth(), image->getHeight());
+    fbo.allocate(image->getWidth(), image->getHeight());
+    
+    fbo.begin();
+        image->draw(0, 0);
+    fbo.end();
 }
 
 //--------------------------------------------------------------
 void ofApp::guiEvent(ofxUIEventArgs &e)
 {
+    if(e.widget->getName() == "Generate"){
+        int uix = (int)((ofxUISlider *)gui->getWidget("GRIDOFFSETX"))->getScaledValue();
+        int y = (int)((ofxUISlider *)gui->getWidget("GRIDOFFSETY"))->getScaledValue();
+        int w = (int)((ofxUISlider *)gui->getWidget("GRIDCELLW"))->getScaledValue();
+        int h = (int)((ofxUISlider *)gui->getWidget("GRIDCELLH"))->getScaledValue();
+        if(w < 1) w = 1;
+        if(h < 1) h = 1;
+
+        fbo.begin();
+            for(y *= -1; y<ofGetWindowHeight(); y+=h)
+            for(int x = uix * -1; x<ofGetWindowWidth(); x+=w)
+                image->drawSubsection(x, y, w, h, (int)ofRandom(image->getWidth()-w), ofRandom(image->getHeight()-h));
+        fbo.end();
+    }
+        
 	/* string name = e.widget->getName();
 	int kind = e.widget->getKind();
 	

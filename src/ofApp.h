@@ -21,11 +21,14 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
+    // screenbuffer
+    ofFbo fbo;
+    
     // UI
     ofxUISuperCanvas *gui;
 	void guiEvent(ofxUIEventArgs &e);
 
     // IMG
     ofImage* image;
-		
+
 };
